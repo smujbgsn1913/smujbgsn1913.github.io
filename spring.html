@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新春快乐 · 岁岁年年</title>
+<style>
+  * {margin: 0; padding: 0;}
+  body {
+    background: linear-gradient(120deg, #d4af37, #c8102e, #8b0000);
+    height: 100vh;
+    overflow: hidden;
+    font-family: "微软雅黑", "华文行楷", sans-serif;
+  }
+  /* 新春文字样式 */
+  .container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    color: #fff;
+    text-shadow: 0 0 10px #ffd700;
+  }
+  .title {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+  .wish {
+    font-size: 24px;
+    line-height: 1.8;
+  }
+  /* 烟花画布 */
+  #fireworks {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+  <!-- 烟花画布 -->
+  <canvas id="fireworks"></canvas>
+
+  <!-- 新春文字 -->
+  <div class="container">
+    <div class="title">新春安康 万事顺遂</div>
+    <div class="wish">
+      愿新年，胜旧年<br>
+      烟火向星辰，所愿皆成真
+    </div>
+  </div>
+
+  <!-- 点击播放音乐按钮（无失效风险） -->
+  <div class="music-btn" style="position: absolute; top: 20px; right: 20px; z-index: 20;">
+    <button onclick="playMusic()" style="
+      padding: 8px 16px;
+      background: #ffd700;
+      border: none;
+      border-radius: 8px;
+      color: #8b0000;
+      font-size: 16px;
+      cursor: pointer;
+    ">
+      点击播放新春音乐 🎵
+    </button>
+  </div>
+  <audio id="music" volume="0.2" loop>
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-chinese-new-year-633.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- 烟花动画代码 -->
+  <script>
+    // 播放音乐函数
+    function playMusic() {
+      const music = document.getElementById('music');
+      music.play();
+      document.querySelector('.music-btn').style.display = 'none';
+    }
+
+    // 烟花核心代码
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let particles = [];
+    let hue = 0;
+
+    window.addEventListener('click', (e) => createFirework(e.x, e.y));
+    window.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.95) createFirework(e.x, e.y);
+    });
+
+    function createFirework(x, y) {
+      const count = 100;
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 5 + 2;
+        particles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          color: `hsl(${hue + Math.random() * 60}, 100%, 60%)`,
+          size: Math.random() * 3 + 1,
+          alpha: 1,
+          decay: Math.random() * 0.01 + 0.005
+        });
+      }
+      hue += 10;
+    }
+
+    function draw() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fill();
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05;
+        p.alpha -= p.decay;
+        if (p.alpha <= 0) particles.splice(i, 1);
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
